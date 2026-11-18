@@ -22,3 +22,4 @@ defaults:
         path: /assets/thumb.png
         width: 1200
         height: 630
+timezone: Asia/Seoul
