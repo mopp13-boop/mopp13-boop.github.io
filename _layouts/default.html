@@ -8,9 +8,9 @@
 <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
 </head>
 <body>
-<header><a class="logo" href="{{ '/' | relative_url }}">{{ site.title }}</a>
-<p>{{ site.description }}</p></header>
-<main>{{ content }}</main>
-<footer>무료상담 <a href="tel:{{ site.phone }}">{{ site.phone }}</a></footer>
+<div class="top"><div class="wrap"><a class="logo" href="{{ '/' | relative_url }}">{{ site.title }}</a><a class="write" href="{{ '/admin/' | relative_url }}" rel="nofollow">글쓰기</a></div></div>
+<div class="wrap">{{ content }}</div>
+<footer>{{ site.description }}<br>무료상담 <a href="tel:{{ site.phone }}">{{ site.phone }}</a></footer>
+<a class="call" href="tel:{{ site.phone }}">전화상담 {{ site.phone }}</a>
 </body>
 </html>

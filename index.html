@@ -1,10 +1,11 @@
 ---
 layout: default
 ---
-<ul class="list">
+<div class="intro"><h2>{{ site.title }}</h2><p>{{ site.description }}</p></div>
 {% for p in site.posts %}
-<li><a href="{{ p.url | relative_url }}">{{ p.title }}</a>
-<span>{{ p.date | date: "%Y.%m.%d" }}</span>
-<p>{{ p.description | default: p.excerpt | strip_html | truncate: 100 }}</p></li>
+{% assign img = p.image.path | default: p.image | default: '/assets/thumb.png' %}
+<a class="card" href="{{ p.url | relative_url }}">
+<img src="{{ img | relative_url }}" alt="{{ p.title | escape }}" loading="lazy">
+<div><h3>{{ p.title }}</h3><p>{{ p.description | default: p.excerpt | strip_html }}</p><time>{{ p.date | date: "%Y.%m.%d" }}</time></div>
+</a>
 {% endfor %}
-</ul>

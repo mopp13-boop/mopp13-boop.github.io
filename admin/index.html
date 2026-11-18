@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>글쓰기</title>
+<style>body{font:16px/1.6 "Malgun Gothic",sans-serif;background:#f3f5f4;margin:0}main{max-width:720px;margin:0 auto;padding:20px 16px}
+h1{font-size:22px;color:#03c75a}input,textarea{width:100%;padding:10px;margin:6px 0 14px;border:1px solid #ccd;border-radius:8px;font:inherit}
+textarea{min-height:360px}button{background:#03c75a;color:#fff;border:0;padding:12px 26px;border-radius:8px;font:700 16px inherit;cursor:pointer}
+button.s{background:#999;padding:8px 14px;font-size:13px}label{font-weight:700;font-size:14px}#msg{margin-top:14px;font-weight:700}.box{background:#fff;padding:18px;border-radius:12px}</style></head>
+<body><main><h1>글쓰기</h1><div id="v" class="box"></div><div id="msg"></div></main>
+<script>
+const R='mopp13-boop/mopp13-boop.github.io',$=id=>document.getElementById(id),E=new TextEncoder(),D=new TextDecoder();
+const b64=u=>{let s='';for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode(...u.subarray(i,i+8192));return btoa(s)};
+const ub=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function key(p,salt){const m=await crypto.subtle.importKey('raw',E.encode(p),'PBKDF2',false,['deriveKey']);
+return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},m,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function lock(t,p){const s=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+const c=new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},await key(p,s),E.encode(t)));return JSON.stringify([b64(s),b64(iv),b64(c)])}
+async function unlock(p){const[s,i,c]=JSON.parse(localStorage.vault).map(ub);return D.decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:i},await key(p,s),c))}
+let T='';const say=(t,ok)=>{$('msg').style.color=ok?'#03a04a':'#d33';$('msg').textContent=t};
+function setup(){$('v').innerHTML='<p>처음 한 번만 설정합니다. GitHub 토큰과 사용할 비밀번호를 입력하세요.</p><label>GitHub 토큰</label><input id=t type=password><label>새 비밀번호 (6자 이상)</label><input id=p type=password><button id=b>저장</button>';
+$('b').onclick=async()=>{if($('p').value.length<6||!$('t').value)return say('토큰과 6자 이상 비밀번호를 입력하세요');localStorage.vault=await lock($('t').value.trim(),$('p').value);T=$('t').value.trim();form()}}
+function login(){$('v').innerHTML='<label>비밀번호</label><input id=p type=password><button id=b>들어가기</button> <button class=s id=r>토큰 다시 등록</button>';
+$('b').onclick=async()=>{try{T=await unlock($('p').value);say('');form()}catch(e){say('비밀번호가 틀렸습니다')}};
+$('p').onkeydown=e=>{if(e.key=='Enter')$('b').click()};$('r').onclick=()=>{localStorage.removeItem('vault');setup()}}
+function form(){$('v').innerHTML='<label>제목</label><input id=ti><label>요약 (검색 결과에 보일 설명, 비우면 본문 앞부분)</label><input id=de><label>대표 이미지 (썸네일, 선택)</label><input id=im type=file accept="image/*"><label>내용 (문단 사이는 한 줄 비우기)</label><textarea id=bo></textarea><button id=go>발행</button>';
+$('go').onclick=publish}
+function shrink(f){return new Promise(r=>{const i=new Image();i.onload=()=>{const s=Math.min(1,1200/i.width),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(async b=>r(new Uint8Array(await b.arrayBuffer())),'image/jpeg',.85)};i.src=URL.createObjectURL(f)})}
+async function put(path,b,msg){return fetch(`https://api.github.com/repos/${R}/contents/${encodeURI(path)}`,{method:'PUT',headers:{Authorization:'Bearer '+T,Accept:'application/vnd.github+json'},body:JSON.stringify({message:msg,content:b,branch:'main'})})}
+async function publish(){const ti=$('ti').value.trim(),bo=$('bo').value.trim();if(!ti||!bo)return say('제목과 내용을 입력하세요');
+$('go').disabled=true;say('발행 중입니다...',1);
+try{const k=new Date(Date.now()+324e5),ymd=k.toISOString().slice(0,10),full=ymd+' '+k.toISOString().slice(11,19)+' +0900';let ip='';
+const f=$('im').files[0];if(f){ip='assets/uploads/'+ymd+'-'+Date.now()+'.jpg';const r=await put(ip,b64(await shrink(f)),'이미지 추가');if(!r.ok)throw r}
+const de=$('de').value.trim()||bo.replace(/\s+/g,' ').slice(0,90),alt=ti.replace(/[\[\]]/g,'');
+const md=`---\ntitle: ${JSON.stringify(ti)}\ndescription: ${JSON.stringify(de)}\ndate: ${full}\n${ip?`image: /${ip}\n`:''}---\n${ip?`![${alt}](/${ip})\n\n`:''}${bo}\n`;
+let slug=ti.toLowerCase().replace(/[^0-9a-z가-힣\s-]/g,'').trim().replace(/\s+/g,'-').slice(0,60)||'post',r=await put(`_posts/${ymd}-${slug}.md`,b64(E.encode(md)),'글 발행: '+ti);
+if(r.status==422)r=await put(`_posts/${ymd}-${slug}-${Math.floor(Math.random()*900+100)}.md`,b64(E.encode(md)),'글 발행: '+ti);
+if(!r.ok)throw r;say('발행했습니다. 1~2분 뒤 사이트에 나타납니다.',1);setTimeout(form,2500)}
+catch(e){$('go').disabled=false;say(e.status==401||e.status==403?'토큰이 틀렸거나 만료됐거나 권한이 없습니다. 비밀번호 화면에서 "토큰 다시 등록"을 누르세요.':'발행에 실패했습니다. 다시 시도하세요.')}}
+localStorage.vault?login():setup();
+</script></body></html>
