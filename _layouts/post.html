@@ -1,0 +1,10 @@
+---
+layout: default
+---
+<article>
+<h1>{{ page.title }}</h1>
+<time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y.%m.%d" }}</time>
+<div class="body">{{ content }}</div>
+<p class="cta">혼자 끌지 마시고 먼저 연락 주십시오. 무료상담 <a href="tel:{{ site.phone }}">{{ site.phone }}</a></p>
+</article>
+<p><a href="{{ '/' | relative_url }}">목록으로</a></p>

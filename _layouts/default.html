@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% if site.naver_verification != "" %}<meta name="naver-site-verification" content="{{ site.naver_verification }}">{% endif %}
+{% seo %}
+<link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+</head>
+<body>
+<header><a class="logo" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+<p>{{ site.description }}</p></header>
+<main>{{ content }}</main>
+<footer>무료상담 <a href="tel:{{ site.phone }}">{{ site.phone }}</a></footer>
+</body>
+</html>

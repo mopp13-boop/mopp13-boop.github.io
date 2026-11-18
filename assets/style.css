@@ -1,0 +1,10 @@
+body{margin:0;font:17px/1.8 "Malgun Gothic",sans-serif;color:#222;background:#fff}
+header,main,footer{max-width:720px;margin:0 auto;padding:16px 20px}
+header{border-bottom:1px solid #ddd}.logo{font-size:22px;font-weight:700;color:#03a94d;text-decoration:none}
+header p{margin:4px 0 0;color:#666;font-size:14px}
+a{color:#0a58ca}.list{list-style:none;padding:0}.list li{padding:14px 0;border-bottom:1px solid #eee}
+.list a{font-size:19px;font-weight:700;text-decoration:none}.list span{margin-left:8px;color:#888;font-size:13px}
+.list p{margin:4px 0 0;color:#555;font-size:15px}
+h1{font-size:26px;line-height:1.4}time{color:#888;font-size:14px}
+.cta{margin-top:32px;padding:14px;background:#f5f7f5}
+footer{border-top:1px solid #ddd;color:#555;font-size:15px;text-align:center}
